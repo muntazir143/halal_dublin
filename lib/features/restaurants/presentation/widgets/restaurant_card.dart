@@ -6,13 +6,25 @@ import 'package:halal_dublin/features/restaurants/data/models/restaurant.dart';
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
   final VoidCallback? onTap;
+  final bool selected;
 
-  const RestaurantCard({super.key, required this.restaurant, this.onTap});
+  const RestaurantCard({
+    super.key,
+    required this.restaurant,
+    this.onTap,
+    this.selected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: selected
+            ? const BorderSide(color: AppColors.primary, width: 2)
+            : const BorderSide(color: AppColors.border, width: 1),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
