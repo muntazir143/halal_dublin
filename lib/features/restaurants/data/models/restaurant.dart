@@ -9,6 +9,8 @@ class Restaurant {
   final String? phone;
   final String? website;
   final String? imageUrl;
+  final double? latitude; // new
+  final double? longitude; // new
 
   const Restaurant({
     required this.id,
@@ -21,12 +23,9 @@ class Restaurant {
     this.phone,
     this.website,
     this.imageUrl,
+    this.latitude,
+    this.longitude,
   });
-
-  @override
-  String toString() {
-    return 'Restaurant(id: $id, name: $name, rating: $rating)';
-  }
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     return Restaurant(
@@ -38,9 +37,12 @@ class Restaurant {
           ? List<String>.from(json['cuisine'] as List)
           : null,
       isHalalCertified: json['is_halal_certified'] as bool?,
+      halalCertification: json['halal_certification'] as String?,
       phone: json['phone'] as String?,
       website: json['website'] as String?,
       imageUrl: json['image_url'] as String?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
   }
 }

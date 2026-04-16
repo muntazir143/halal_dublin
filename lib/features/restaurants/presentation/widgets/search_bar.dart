@@ -1,8 +1,6 @@
-// lib/features/restaurants/presentation/widgets/search_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../providers/restaurant_providers.dart';
+import 'package:halal_dublin/features/restaurants/providers/restaurant_providers.dart';
 
 class RestaurantSearchBar extends ConsumerWidget {
   const RestaurantSearchBar({super.key});
@@ -13,19 +11,14 @@ class RestaurantSearchBar extends ConsumerWidget {
     final searchNotifier = ref.read(searchQueryProvider.notifier);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.md,
-        AppSpacing.md,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: TextField(
         decoration: InputDecoration(
-          hintText: 'Search by name or address...',
-          prefixIcon: const Icon(Icons.search),
+          hintText: 'Search restaurants, cuisines...',
+          prefixIcon: const Icon(Icons.search, size: 18),
           suffixIcon: searchQuery.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => searchNotifier.state = '',
                 )
               : null,

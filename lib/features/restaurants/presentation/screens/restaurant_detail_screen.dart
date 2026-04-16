@@ -1,195 +1,306 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:halal_dublin/core/theme/app_colors.dart';
-import 'package:halal_dublin/core/theme/app_spacing.dart';
 import 'package:halal_dublin/core/theme/app_text_styles.dart';
 import 'package:halal_dublin/features/restaurants/providers/restaurant_providers.dart';
 
 class RestaurantDetailScreen extends ConsumerWidget {
   final String restaurantId;
-
-  const RestaurantDetailScreen({
-    super.key,
-    required this.restaurantId,
-  });
+  const RestaurantDetailScreen({super.key, required this.restaurantId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final restaurantAsync = ref.watch(restaurantDetailProvider(restaurantId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: restaurantAsync.maybeWhen(
-          data: (restaurant) => Text(restaurant.name),
-          orElse: () => const Text('Loading...'),
-        ),
-      ),
       body: restaurantAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-              const SizedBox(height: AppSpacing.md),
-              Text('Error loading restaurant', style: AppTextStyles.bodyLarge),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                error.toString(),
-                style: AppTextStyles.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
+        error: (error, _) => Center(child: Text('Error: $error')),
         data: (restaurant) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Rating
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.md,
-                    ),
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 120,
+                pinned: true,
+                backgroundColor: AppColors.primaryLight,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppSpacing.lg),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.primaryLight,
+                          AppColors.primaryLight.withOpacity(0.7),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          color: AppColors.secondary,
-                          size: 32,
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(
-                          restaurant.rating.toStringAsFixed(1),
-                          style: AppTextStyles.headlineLarge.copyWith(
-                            color: AppColors.secondary,
+                    child: Center(
+                      child: Icon(
+                        _getCuisineIcon(restaurant.cuisine?.firstOrNull),
+                        size: 48,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                leading: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: AppColors.primary,
+                      size: 16,
+                    ),
+                  ),
+                  onPressed: () => context.pop(),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Name and rating
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  restaurant.name,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Wrap(
+                                  spacing: 4,
+                                  children: [
+                                    ...?restaurant.cuisine?.map(
+                                      (c) => _Tag(label: c),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-
-                // Address
-                _buildInfoSection(
-                  icon: Icons.location_on,
-                  title: 'Address',
-                  content: restaurant.address,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Cuisine (if available)
-                if (restaurant.cuisine != null &&
-                    restaurant.cuisine!.isNotEmpty)
-                  _buildInfoSection(
-                    icon: Icons.restaurant,
-                    title: 'Cuisine',
-                    content: restaurant.cuisine!.join(', '),
-                  ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Phone (if available)
-                if (restaurant.phone != null)
-                  _buildInfoSection(
-                    icon: Icons.phone,
-                    title: 'Phone',
-                    content: restaurant.phone!,
-                  ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Website (if available)
-                if (restaurant.website != null)
-                  _buildInfoSection(
-                    icon: Icons.language,
-                    title: 'Website',
-                    content: restaurant.website!,
-                  ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Halal Certification
-                if (restaurant.isHalalCertified == true) ...[
-                  const Divider(),
-                  const SizedBox(height: AppSpacing.lg),
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.success),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.verified, color: AppColors.success),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.ratingBackground,
+                              border: Border.all(
+                                color: AppColors.ratingGold.withOpacity(0.3),
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              children: [
+                                const Text('⭐', style: TextStyle(fontSize: 18)),
+                                Text(
+                                  restaurant.rating.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.ratingGold,
+                                  ),
+                                ),
+                                const Text(
+                                  'rating',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: AppColors.ratingGold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Halal certification card
+                      if (restaurant.isHalalCertified == true)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            border: Border.all(
+                              color: AppColors.primary.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
                             children: [
-                              Text(
-                                'Halal Certified',
-                                style: AppTextStyles.titleLarge.copyWith(
-                                  color: AppColors.success,
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.verified,
+                                  color: Colors.white,
+                                  size: 18,
                                 ),
                               ),
-                              if (restaurant.halalCertification != null)
-                                Text(
-                                  'Certification: ${restaurant.halalCertification}',
-                                  style: AppTextStyles.bodyMedium,
-                                ),
+                              const SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Halal Certified',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  if (restaurant.halalCertification != null)
+                                    Text(
+                                      'Certified by ${restaurant.halalCertification}',
+                                      style: AppTextStyles.bodySmall,
+                                    ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      const SizedBox(height: 16),
+                      // Info cards
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          border: Border.all(color: AppColors.border),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          children: [
+                            _InfoRow(
+                              icon: Icons.location_on,
+                              label: 'ADDRESS',
+                              value: restaurant.address,
+                            ),
+                            const Divider(height: 0),
+                            if (restaurant.phone != null)
+                              _InfoRow(
+                                icon: Icons.phone,
+                                label: 'PHONE',
+                                value: restaurant.phone!,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ],
-            ),
+                ),
+              ),
+            ],
           );
         },
       ),
     );
   }
 
-  Widget _buildInfoSection({
-    required IconData icon,
-    required String title,
-    required String content,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: AppColors.textSecondary),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                content,
-                style: AppTextStyles.bodyLarge,
-              ),
-            ],
-          ),
+  String _getCuisineEmoji(String? cuisine) {
+    // same as in RestaurantCard
+    if (cuisine == null) return '🍽️';
+    final lower = cuisine.toLowerCase();
+    if (lower.contains('syrian') || lower.contains('middle eastern'))
+      return '🧆';
+    if (lower.contains('persian') || lower.contains('kebab')) return '🥙';
+    if (lower.contains('falafel') || lower.contains('lebanese')) return '🧇';
+    if (lower.contains('pakistani') || lower.contains('indian')) return '🍛';
+    return '🍽️';
+  }
+}
+
+class _Tag extends StatelessWidget {
+  final String label;
+  const _Tag({required this.label});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.w600,
+          color: AppColors.primary,
         ),
-      ],
+      ),
     );
   }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 14, color: AppColors.primary),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: AppTextStyles.labelTiny),
+              const SizedBox(height: 1),
+              Text(value, style: AppTextStyles.bodyLarge),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+IconData _getCuisineIcon(String? cuisine) {
+  if (cuisine == null) return Icons.restaurant;
+  final lower = cuisine.toLowerCase();
+  if (lower.contains('syrian') || lower.contains('middle eastern')) {
+    return Icons.kebab_dining; // or Icons.food_bank
+  }
+  if (lower.contains('persian') || lower.contains('kebab')) {
+    return Icons.kebab_dining;
+  }
+  if (lower.contains('falafel') || lower.contains('lebanese')) {
+    return Icons.breakfast_dining; // or Icons.fastfood
+  }
+  if (lower.contains('pakistani') || lower.contains('indian')) {
+    return Icons.rice_bowl;
+  }
+  return Icons.restaurant;
 }

@@ -1,33 +1,28 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Modern, softer green
-  static const Color primary = Color(0xFF1B5E20); // Deep forest green
-  static const Color primaryLight = Color(
-    0xFF4CAF50,
-  ); // Vibrant green for accents
-  static const Color primaryDark = Color(0xFF0A2F0D); // Darker for contrast
-
-  // Warm accent for ratings/CTAs
-  static const Color secondary = Color(0xFFFF8F00); // Amber
+  // Primary greens
+  static const Color primary = Color(0xFF1A6B3C);
+  static const Color primaryLight = Color(0xFFE8F5EE);
+  static const Color primaryDark = Color(0xFF0F3D22);
 
   // Neutrals
-  static const Color background = Color(0xFFF8F9FA); // Very light gray
-  static const Color surface = Color(0xFFFFFFFF); // White for cards
-  static const Color surfaceVariant = Color(
-    0xFFF1F3F4,
-  ); // Slightly darker for sections
+  static const Color background = Color(0xFFF5F7F5);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color border = Color(0xFFDDE8DF);
 
-  // Text - better contrast
-  static const Color textPrimary = Color(0xFF202124); // Near black
-  static const Color textSecondary = Color(0xFF5F6368); // Medium gray
-  static const Color textOnPrimary = Color(0xFFFFFFFF); // White text on primary
+  // Text
+  static const Color textPrimary = Color(0xFF111D13);
+  static const Color textSecondary = Color(0xFF5C7060);
+  static const Color textTertiary = Color(0xFF9FB3A2);
+
+  // Rating
+  static const Color ratingGold = Color(0xFFE9AA26);
+  static const Color ratingBackground = Color(0xFFFEF3D7);
 
   // Status
-  static const Color success = Color(0xFF1E8E3E); // Green
-  static const Color error = Color(0xFFD93025); // Red
-  static const Color warning = Color(0xFFF9AB00); // Yellow
-  static const Color border = Color(0xFFDADCE0); // Light gray border
+  static const Color success = Color(0xFF1A6B3C);
+  static const Color error = Color(0xFFD93025);
 
   AppColors._();
 }

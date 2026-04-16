@@ -1,114 +1,89 @@
-// lib/core/theme/app_theme.dart
 import 'package:flutter/material.dart';
-import 'package:halal_dublin/core/theme/app_spacing.dart';
-import 'app_colors.dart';
-import 'app_text_styles.dart';
+import 'package:halal_dublin/core/theme/app_colors.dart';
+import 'package:halal_dublin/core/theme/app_text_styles.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
+      scaffoldBackgroundColor: AppColors.background,
+      fontFamily: 'Roboto',
+
+      // Color Scheme
+      colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
-        onPrimary: AppColors.textOnPrimary,
-        primaryContainer: AppColors.primaryLight,
-        secondary: AppColors.secondary,
-        onSecondary: Colors.black,
+        onPrimary: Colors.white,
+        secondary: AppColors.ratingGold,
         surface: AppColors.surface,
-        surfaceContainerHighest: AppColors.surfaceVariant,
         error: AppColors.error,
       ),
-      scaffoldBackgroundColor: AppColors.background,
 
-      // AppBar Theme
-      appBarTheme: AppBarTheme(
+      // AppBar
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: AppTextStyles.titleLarge,
-        scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        titleTextStyle: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        iconTheme: IconThemeData(color: AppColors.primary),
       ),
 
-      // Card Theme - softer shadows, more rounded
+      // Cards
       cardTheme: CardThemeData(
         color: AppColors.surface,
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.08),
+        elevation: 0, // Using border instead of shadow
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.border, width: 1),
         ),
-        margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
 
-      // Input Decoration Theme (for search bar)
+      // Input Decoration (Search bar)
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 14,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        hintStyle: AppTextStyles.bodySmall?.copyWith(
+          color: AppColors.textTertiary,
         ),
-        hintStyle: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.textSecondary,
-        ),
-        prefixIconColor: AppColors.textSecondary,
+        prefixIconColor: AppColors.textTertiary,
       ),
 
-      // Elevated Button Theme
+      // Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textOnPrimary,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          textStyle: AppTextStyles.labelLarge,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ),
 
-      // Text Button Theme
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          textStyle: AppTextStyles.labelLarge,
-        ),
-      ),
-
-      // Divider Theme
+      // Divider
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 1,
-        space: 1,
-      ),
-
-      // List Tile Theme
-      listTileTheme: ListTileThemeData(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
       ),
     );
   }
