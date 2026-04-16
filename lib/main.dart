@@ -6,10 +6,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (_) {}
+
+  final supabaseUrl = const String.fromEnvironment('SUPABASE_URL');
+  final supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY');
+
   await Supabase.initialize(
-    url: dotenv.env["SUPABASE_URL"]!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: supabaseUrl.isNotEmpty ? supabaseUrl : dotenv.env['SUPABASE_URL']!,
+    anonKey: supabaseAnonKey.isNotEmpty
+        ? supabaseAnonKey
+        : dotenv.env['SUPABASE_ANON_KEY']!,
   );
   runApp(
     const ProviderScope(
